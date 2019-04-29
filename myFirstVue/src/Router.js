@@ -35,28 +35,38 @@ new Vue({
 }).$mount('#app')*/
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-
 Vue.use(VueRouter)
-
-const home = {template:`<h1>this is home page!</h1>`}
-const greet = {template:`<h1>hi!`}
-
+const index = {template:`<h1>this is index page</h1>`}
+const indexthird = {template:`<router-view><router-view>`}
+const first = {template:`<h1>this is first page</h1>`}
+const second = {template:`<h1>this is second page</h1>`}
+const third = {template:`<h1>this is third page</h1>`}
 const router = new VueRouter({
     mode:'history',
     base:__dirname,
     routes:[
-        {path:'/',component:home},
-        {path:'/hello',component:greet}
+        {path:'/',component:indexthird,
+            children:[
+                {path:'/',name:'indexpage',component:index},
+                {path:'third',name:'indexthirdpage',component:third}
+            ]},
+        {path:'/first',name:'firstpage',component:first},
+        {path:'/second',component:second}
     ]
 })
+
 new Vue({
     router,
     template:`<div>
-                <h1>导航</h1>
-                <ul>
-                    <li><router-link to="/">home</router-link></li>
-                    <li><router-link to="/hello">greet</router-link></li>
-                </ul>
-                <router-view></router-view>
-               </div>`
+        <ul>
+            <li><router-link to="/">index</router-link>
+                <ol><li><router-link to="/third">third</router-link></li></ol>
+            </li>
+            <li><router-link :to="{name:'firstpage',params:{id:123}}">first</router-link></li>
+            <li><router-link to="/second">second</router-link></li>
+        <ul>
+        <router-view></router-view><p>{{$route.name}}{{$route.params.id}}</p>
+    </div>`
 }).$mount('#app')
+
+      
