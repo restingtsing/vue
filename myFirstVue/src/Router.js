@@ -32,41 +32,55 @@ new Vue({
                     </ul>
                     <router-view></router-view>
                 </div>`
-}).$mount('#app')*/
+}).$mount('#app')
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 Vue.use(VueRouter)
 const index = {template:`<h1>this is index page</h1>`}
-const indexthird = {template:`<router-view><router-view>`}
-const first = {template:`<h1>this is first page</h1>`}
-const second = {template:`<h1>this is second page</h1>`}
-const third = {template:`<h1>this is third page</h1>`}
+const first = {template:`<div>this is first page</div>`}
+const second = {template:`<div>this is second page</div>`}
 const router = new VueRouter({
     mode:'history',
     base:__dirname,
     routes:[
-        {path:'/',component:indexthird,
-            children:[
-                {path:'/',name:'indexpage',component:index},
-                {path:'third',name:'indexthirdpage',component:third}
-            ]},
-        {path:'/first',name:'firstpage',component:first},
-        {path:'/second',component:second}
+        {path:'/',components:{
+            default:index,
+            left:first,
+            right:second
+            }
+        }
     ]
 })
 
 new Vue({
     router,
     template:`<div>
-        <ul>
-            <li><router-link to="/">index</router-link>
-                <ol><li><router-link to="/third">third</router-link></li></ol>
-            </li>
-            <li><router-link :to="{name:'firstpage',params:{id:123}}">first</router-link></li>
-            <li><router-link to="/second">second</router-link></li>
-        <ul>
-        <router-view></router-view><p>{{$route.name}}{{$route.params.id}}</p>
+        <router-link to='/'>this is index</router-link>
+        <router-view></router-view>
+        <router-view name="left" style="height:300px;weight:300px;float:left;background:red;"></router-view>
+        <router-view name="right" style="height:300px;weight:300px;float:left;background:blue;"></router-view>
     </div>`
 }).$mount('#app')
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+Vue.use(VueRouter)
 
-      
+const index = {template:`<div>this is index page</div>`}
+const greet = {template:`<div>this is greet page</div>`}
+
+const router = new VueRouter({
+    mode:'history',
+    base:__dirname,
+    routes:[
+        {path:'/',component:index},
+        {path:'/greet/:a/:b',component:greet}
+    ]
+})
+new Vue({
+    router,
+    template:`<div>
+        <router-link to="/">index</router-link>
+        <router-link to="/greet/rest/hehe">greet</router-link>
+        <router-view></router-view>
+    </div>`
+}).$mount('#app')*/
