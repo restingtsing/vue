@@ -33,12 +33,12 @@ export default {
         color: #000000; 
         text-decoration: none; 
     } 
-    a:visited { 
-        color: #000000; 
+    a:visited {
+        color: #000000;
         text-decoration: none; 
     } 
-    a:hover { 
-        color: #6e6e69; 
+    a:hover {
+        color: #812323; 
         text-decoration:none; 
     } 
 </style>
