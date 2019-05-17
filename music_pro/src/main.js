@@ -3,13 +3,14 @@
 import 'babel-polyfill'
 import Vue from 'vue'
 import App from './App'
-import fastclick from 'fastclick'
 import router from './router/index'
 import './common/stylus/index.styl'
-
+import '../static/swiper-3.4.2.min.css'
+import lazyLoader from 'vue-lazyload'
 Vue.config.productionTip = false
-fastclick.attach(document.body)
-
+Vue.use(lazyLoader,{
+  loading:require('./common/image/default.png')
+})
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
