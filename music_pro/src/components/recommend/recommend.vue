@@ -1,36 +1,22 @@
 <template>
-    <div class="recommend">
-      <scroll ref="scroll" class="recommend-content" :data="discList">
-        <div>
-          <div class="swiper-container" ref="slider">
-            <div class="swiper-wrapper" v-if="recommends.length">
-              <div v-for="item in recommends" class="swiper-slide sliderimg">
-                <a :href="item.linkUrl" >
-                  <img @load="loadImg" :src="item.picUrl" :alt="item.id" ref="sliderImg" />
-                </a>
-              </div>
-            </div>
-            <div class="swiper-pagination" ></div>
-          </div> 
-        
-          <!-- <slider>
-           <div v-for="item in recommends" class="swiper-slide">
+  <div class="recommend" ref="recommend">
+    <scroll ref="scroll" class="recommend-content" :data="discList">
+      <div>
+        <div v-if="recommends.length" class="slider-wrapper" ref="sliderWrapper">
+          <slider>
+            <div v-for="item in recommends">
               <a :href="item.linkUrl">
-                <img :src="item.picUrl" :alt="item.id"> 
+                <img class="needsclick" @load="loadImage" :src="item.picUrl">
               </a>
-           </div>
-          </slider> -->
-        </div> 
-        <div class="loading-container" v-show="!discList.length">
-          <Load></Load>  
-        </div> 
-      </scroll>
-      <div class="recommend-list">
+            </div>
+          </slider>
+        </div>
+        <div class="recommend-list">
           <h1 class="list-title">热门歌单推荐</h1>
           <ul>
-            <li v-for="item in discList" class="item">
+            <li @click="selectItem(item)" v-for="item in discList" class="item">
               <div class="icon">
-                   <img v-lazy="item.imgurl" width="60" height="60">
+                <img width="60" height="60" v-lazy="item.imgurl">
               </div>
               <div class="text">
                 <h2 class="name" v-html="item.creator.name"></h2>
@@ -40,87 +26,92 @@
           </ul>
         </div>
       </div>
-    </div>
+      <div class="loading-container" v-show="!discList.length">
+        <loading></loading>
+      </div>
+    </scroll>
+    <router-view></router-view>
+  </div>
 </template>
 
-<script>
-import Load from '../../base/loading/loading'
-import Scroll from '../../base/scroll/scroll'
-import Swiper from '../../../static/swiper-3.4.2.min.js'
-import {getRecommend,getList} from '../../api/recommend'
-import { ERR_OK } from '../../api/config'
+<script type="text/ecmascript-6">
+  import Slider from '../../base/slider/slider'
+  import Loading from '../../base/loading/loading'
+  import Scroll from '../../base/scroll/scroll'
+  import {getRecommend, getList} from '../../api/recommend'
+  import {ERR_OK} from '../../api/config'
+  import {mapMutations} from 'vuex'
 
-
-export default {
-  components:{Scroll,Load},
-  data(){
-    return{
-      recommends:[],
-      discList:[]
-    }
-  },
-  created(){
-    setTimeout(()=>{
-      this._getList()
-    },500)
-    
-    this._getRecommend()
-    
-  },
-  mounted(){
-    this.timer = setTimeout(()=>{
-      this._setSliderWidth()
-      var swiper1 = new Swiper('.swiper-container',{
-        autoplay:3000,
-        autoplayDisableOnInteraction : false,
-        loop:true,
-        pagination : '.swiper-pagination'
-      })
-    },200)
-    window.addEventListener('resize',()=>{
-        this._setSliderWidth()
-    })
-  },
-  methods:{
-    _setSliderWidth(){
-        let img = this.$refs.sliderImg
-        for(let i of img){
-          i.style.width = "100%"
-        }
-    },
-    _getRecommend(){
-      getRecommend().then((res=>{
-        if(res.code===ERR_OK){
-          this.recommends =res.data.slider
-        }
-      }))
-    },
-    _getList(){
-      getList().then((res=>{
-        if(res.code === ERR_OK){
-          this.discList = res.data.list
-        }
-      }))
-    },
-    loadImg(){
-      if(!this.checkloading){
-        this.$refs.scroll.refresh()
-        this.checkloading = true
+  export default {
+    data() {
+      return {
+        recommends: [],
+        discList: []
       }
+    },
+    created() {
+      this._getRecommend()
+
+      this._getDiscList()
+    },
+    methods: {
+      handlePlaylist(playlist) {
+        const bottom = playlist.length > 0 ? '60px' : ''
+
+        this.$refs.recommend.style.bottom = bottom
+        this.$refs.scroll.refresh()
+      },
+      loadImage() {
+        if (!this.checkloaded) {
+          this.checkloaded = true
+          this.$refs.scroll.refresh()
+        }
+      },
+      selectItem(item) {
+        this.$router.push({
+          path: `/recommend/${item.dissid}`
+        })
+        this.setDisc(item)
+      },
+      _getRecommend() {
+        getRecommend().then((res) => {
+          if (res.code === ERR_OK) {
+            this.recommends = res.data.slider
+          }
+        })
+      },
+      _getDiscList() {
+        getList().then((res) => {
+          if (res.code === ERR_OK) {
+            this.discList = res.data.list
+          }
+        })
+      }
+    },
+    components: {
+      Slider,
+      Loading,
+      Scroll
     }
-  },
-  destroyed(){
-    clearTimeout(this.timer)
   }
-    
-}
 </script>
 
-<style scoped>
-</style>
-<style lang="stylus" scoped>
-@import '../../common/stylus/variable'
-  .recommend-list
+<style scoped lang="stylus" rel="stylesheet/stylus">
+  @import "../../common/stylus/variable"
+
+  .recommend
+    position: fixed
+    width: 100%
+    top: 88px
+    bottom: 0
+    .recommend-content
+      height: 100%
+      overflow: hidden
+      .slider-wrapper
+        position: relative
+        width: 100%
+        overflow: hidden
+      .recommend-list
         .list-title
           height: 65px
           line-height: 65px
@@ -149,7 +140,7 @@ export default {
               color: $color-text
             .desc
               color: $color-text-d
-  .loading-container
+      .loading-container
         position: absolute
         width: 100%
         top: 50%
